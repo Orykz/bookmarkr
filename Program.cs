@@ -23,8 +23,9 @@ class Program
     private static readonly Option<string> categoryOption = new("--category", ["-cat"])
     {
         Description = "The category which the bookmark is associated",
-        DefaultValueFactory = result => "Read Later"
-    };
+        DefaultValueFactory = result => "Read Later",
+        
+    };    
 
     static async Task<int> Main(string[] args)
     {
@@ -52,6 +53,26 @@ class Program
         linkCommand.Subcommands.Add(removeLinkCommand);
         linkCommand.Subcommands.Add(updateLinkCommand);
         rootCommand.Subcommands.Add(linkCommand);
+
+        // add validators for options
+        urlOption.Validators.Add(result =>
+        {
+            if (result.Tokens.Count == 0)
+            {
+                result.AddError("URL is required.");
+            } 
+            else if (Uri.TryCreate(result.Tokens[0].Value, UriKind.Absolute, out _))
+            {
+                result.AddError("The URL is invalid.");
+            }
+        });
+        // temp
+        categoryOption.AcceptOnlyFromAmong([
+            "Read Later",
+            "Books",
+            "Cooking",
+            "Social Media"
+        ]);
 
         // handling the function call of commands
         addLinkCommand.SetAction(parseResult => OnHandleAddLinkCommand(parseResult, service));
