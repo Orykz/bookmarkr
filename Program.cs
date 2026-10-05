@@ -20,9 +20,10 @@ class Program
     {
         Description = "Lists all of the bookmarks"
     };
-    private static readonly Option<string> categoryOption = new("--category", ["-c"])
+    private static readonly Option<string> categoryOption = new("--category", ["-cat"])
     {
-        Description = "The category which the bookmark is associated"  
+        Description = "The category which the bookmark is associated",
+        DefaultValueFactory = result => "Read Later"
     };
 
     static async Task<int> Main(string[] args)
@@ -81,7 +82,14 @@ class Program
         // name and url are required options so can't be null
         var name = result.GetValue(nameOption)!;
         var url = result.GetValue(urlOption)!;
-        var category = result.GetValue(categoryOption);
+        string? category = null;
+
+        // check if category was provided
+        var catResult = result.GetResult(categoryOption);
+        if (!catResult!.Implicit)
+        {
+            category = result.GetValue(categoryOption);
+        }
         service.UpdateLink(name, url, category);
     }
 
@@ -97,7 +105,7 @@ class Program
         // name and url are required options so can't be null
         var name = result.GetValue(nameOption)!;
         var url = result.GetValue(urlOption)!;
-        var category = result.GetValue(categoryOption);
+        var category = result.GetValue(categoryOption)!;
         service.AddLink(name, url, category);
     }
 

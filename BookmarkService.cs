@@ -2,9 +2,22 @@ namespace bookmarkr;
 
 public class BookmarkService
 {
-    private readonly List<Bookmark> _bookmarks = [];
+    // private readonly List<Bookmark> _bookmarks = [];
+    // testing
+    private readonly List<Bookmark> _bookmarks = [
+        new Bookmark {
+            Name = "test",
+            Url = "test.com",
+            Category = "Books"
+        },
+        new Bookmark {
+            Name = "lenovo",
+            Url = "lenovo.com",
+            Category = "Read Later"
+        }
+    ];
 
-    public void AddLink(string name, string url, string? category)
+    public void AddLink(string name, string url, string category)
     {
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(url))
         {
@@ -28,7 +41,7 @@ public class BookmarkService
         {
             Name = name,
             Url = url,
-            Category = category ?? "Read Later"
+            Category = category
         });
         Helper.ShowSuccessMessage(["Bookmark successfully added."]);
     }
@@ -77,13 +90,13 @@ public class BookmarkService
             return;
         }
 
-        bookmark!.Url = url;
+        bookmark.Url = url;
         if (category != null)
         {
-            bookmark!.Category = category;
+            bookmark.Category = category;
         }
 
-        Helper.ShowSuccessMessage([$"Bookmark '{name}' successfully updated."]);
+        Helper.ShowSuccessMessage([$"Bookmark '{name}' successfully updated.", $"URL: {bookmark.Url}, Category: {bookmark.Category}"]);
     }
 
     public List<Bookmark> GetAllBookmarks()
