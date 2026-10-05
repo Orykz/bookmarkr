@@ -5,29 +5,24 @@ namespace bookmarkr;
 
 class Program
 {
+    private static readonly Option<string> nameOption = new("--name", ["-n"])
+    {
+        Required = true,
+        Description = "The name of the bookmark"
+    };
+    private static readonly Option<string> urlOption = new("--url", ["-u"])
+    {
+        Required = true,
+        Description = "The URL of the bookmark"
+    };
+
+    private static readonly Option<bool> listOption = new("--list", ["-l"])
+    {
+        Description = "Lists all of the bookmarks"
+    };
+
     static async Task<int> Main(string[] args)
     {
-        // if (args == null || args.Length == 0)
-        // {
-        //     Helper.ShowErrorMessage([
-        //         "You have not entered any command.", 
-        //         "Use `bookmarkr --help` to view valid commands"
-        //     ]);
-        // }
-
-        // var service = new BookmarkService();
-
-        // switch (args[0].ToLower())
-        // {
-        //     case "link":
-        //         ManageLinks(args, service);
-        //         break;
-        //     default:
-        //         Helper.ShowErrorMessage([
-        //             "Unkown Command."
-        //         ]);
-        //         break;
-        // }
         var service = new BookmarkService();
 
         // initializing the command objects
@@ -38,22 +33,7 @@ class Program
         var updateLinkCommand = new Command("update", "Update the url of an existing bookmark");
 
         // initializing the option objects
-        var nameOption = new Option<string>("--name", ["-n"])
-        {
-            Required = true,
-            Description = "The name of the bookmark"
-        };
-        var urlOption = new Option<string>("--url", ["-u"])
-        {
-            Required = true,
-            Description = "The URL of the bookmark"
-        };
-
-        var listOption = new Option<bool>("--list", ["-l"])
-        {
-
-            Description = "Lists all of the bookmarks"
-        };
+        
 
         // linking the options to the commands
         addLinkCommand.Options.Add(nameOption);
@@ -70,23 +50,9 @@ class Program
         rootCommand.Subcommands.Add(linkCommand);
 
         // handling the function call of commands
-        addLinkCommand.SetAction(parseResult =>
-        {
-            var name = parseResult.GetValue(nameOption);
-            var url = parseResult.GetValue(urlOption);
-            OnHandleAddLinkCommand(name, url, service);
-        });
-        removeLinkCommand.SetAction(parseResult =>
-        {
-            var name = parseResult.GetValue(nameOption);
-            OnHandleRemoveLinkCommand(name, service);
-        });
-        updateLinkCommand.SetAction(parseResult =>
-        {
-            var name = parseResult.GetValue(nameOption);
-            var url = parseResult.GetValue(urlOption);
-            OnHandleUpdateLinkCommand(name, url, service);
-        });
+        addLinkCommand.SetAction(parseResult => OnHandleAddLinkCommand(parseResult, service));
+        removeLinkCommand.SetAction(parseResult => OnHandleRemoveLinkCommand(parseResult, service));
+        updateLinkCommand.SetAction(parseResult => OnHandleUpdateLinkCommand(parseResult, service));
         linkCommand.SetAction(parseResult =>
         {
             var isList = parseResult.GetValue(listOption);
@@ -107,18 +73,26 @@ class Program
         return rootCommand.Parse(args).Invoke();
     }
 
-    private static void OnHandleUpdateLinkCommand(string name, string url, BookmarkService service)
+    private static void OnHandleUpdateLinkCommand(ParseResult result, BookmarkService service)
     {
+        // name and url are required options so can't be null
+        var name = result.GetValue(nameOption)!;
+        var url = result.GetValue(urlOption)!;
         service.UpdateLink(name, url);
     }
 
-    private static void OnHandleRemoveLinkCommand(string name, BookmarkService service)
+    private static void OnHandleRemoveLinkCommand(ParseResult result, BookmarkService service)
     {
+        // name is a required option so can't be null
+        var name = result.GetValue(nameOption)!;
         service.RemoveLink(name);
     }
 
-    private static void OnHandleAddLinkCommand(string name, string url, BookmarkService service)
+    private static void OnHandleAddLinkCommand(ParseResult result, BookmarkService service)
     {
+        // name and url are required options so can't be null
+        var name = result.GetValue(nameOption)!;
+        var url = result.GetValue(urlOption)!;
         service.AddLink(name, url);
     }
 
