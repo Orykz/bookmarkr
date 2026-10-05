@@ -4,7 +4,7 @@ public class BookmarkService
 {
     private readonly List<Bookmark> _bookmarks = [];
 
-    public void AddLink(string name, string url)
+    public void AddLink(string name, string url, string? category)
     {
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(url))
         {
@@ -27,7 +27,8 @@ public class BookmarkService
         _bookmarks.Add(new Bookmark
         {
             Name = name,
-            Url = url
+            Url = url,
+            Category = category ?? "Read Later"
         });
         Helper.ShowSuccessMessage(["Bookmark successfully added."]);
     }
@@ -56,13 +57,13 @@ public class BookmarkService
         Helper.ShowSuccessMessage([$"Bookmark '{name}' successfully removed."]);
     }
 
-    public void UpdateLink(string name, string url)
+    public void UpdateLink(string name, string url, string? category)
     {
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(url))
         {
             Helper.ShowErrorMessage([
                 "Invalid syntax for the update command. The expected syntax is: ",
-                "bookmarkr link updaste --name <name> --url <url>"
+                "bookmarkr link update --name <name> --url <url>"
             ]);
             return;
         }
@@ -77,6 +78,11 @@ public class BookmarkService
         }
 
         bookmark!.Url = url;
+        if (category != null)
+        {
+            bookmark!.Category = category;
+        }
+
         Helper.ShowSuccessMessage([$"Bookmark '{name}' successfully updated."]);
     }
 
